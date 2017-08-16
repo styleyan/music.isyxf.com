@@ -1,23 +1,21 @@
 <template>
   <div id="app">
-    <img src="@image/logo.png">
+    <logo></logo>
+    <tab></tab>
     <router-view></router-view>
   </div>
 </template>
 
 <script>
+import Tab from '@components/tab/Tab.vue'
+import Logo from '@components/logo/Logo.vue'
+
 export default {
-  name: 'app'
+  name: 'app',
+  components: {
+    Tab,
+    Logo,
+  },
 }
 </script>
 
-<style lang="stylus" rel="stylesheet/stylus" scoped>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>

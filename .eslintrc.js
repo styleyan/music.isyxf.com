@@ -26,6 +26,8 @@ module.exports = {
     // 新文件最后是否有空行
     'eol-last': 0,
     // 方法前面是否有空格
-    'space-before-function-paren': 0
+    'space-before-function-paren': ["error", {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
+    // 对象数组后面要加逗号
+    'comma-dangle': ['error', 'always-multiline']
   }
 }
