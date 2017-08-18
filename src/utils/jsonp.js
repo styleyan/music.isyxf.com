@@ -16,7 +16,7 @@ function jointUrl(url, data) {
     const val = encodeURIComponent(data[prop] || '')
     jurl += `&${prop}=${val}`
   })
-  return (url.endsWith('?') ? '' : '?') + jurl
+  return url + (url.endsWith('?') ? '' : '?') + jurl
 }
 
 /**
