@@ -1,15 +1,19 @@
 <template>
   <div>
-    这是首页
+    <slider><div slot="twoSlot">v-text="aaaaa"</div>sdf</slider>
   </div>
 </template>
 
 <script>
-import {getRecommend} from '@api/recommend'
-import {ERR_OK} from '@api/config'
+import { getRecommend } from '@api/recommend'
+import { ERR_OK } from '@api/config'
+import Slider from '@components/slider/Slider.vue'
 
 export default {
   name: 'recommend',
+  components: {
+    Slider,
+  },
   created() {
     this.getRecommendData()
   },
