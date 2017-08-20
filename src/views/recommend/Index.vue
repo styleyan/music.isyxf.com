@@ -1,6 +1,12 @@
 <template>
   <div>
-    <slider><div slot="twoSlot">v-text="aaaaa"</div>sdf</slider>
+    <slider v-if="recommends.length">
+      <div v-for="(item,key) in recommends" :key="key">
+        <a :href="item.linkUrl">
+          <img :src="item.picUrl" />
+        </a>
+      </div>
+    </slider>
   </div>
 </template>
 
@@ -14,6 +20,11 @@ export default {
   components: {
     Slider,
   },
+  data() {
+    return {
+      recommends: [],
+    }
+  },
   created() {
     this.getRecommendData()
   },
@@ -21,7 +32,7 @@ export default {
     getRecommendData() {
       getRecommend().then((data) => {
         if (data.code === ERR_OK) {
-          console.log(data.data.slider)
+          this.recommends = data.data.slider
         }
       })
     },
