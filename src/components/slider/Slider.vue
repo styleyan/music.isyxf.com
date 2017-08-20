@@ -36,6 +36,7 @@ export default {
     return {
       dots: [],
       currentPageIndex: 0,
+      timer: null,
     }
   },
   mounted() {
@@ -52,7 +53,7 @@ export default {
     window.addEventListener('resize', () => {
       if (!this.slider) return
       this._setSliderWidth(true)
-      this.slider.refesh()
+      this.slider.refresh()
     })
   },
   methods: {
@@ -111,6 +112,9 @@ export default {
         this.slider.goToPage(pageIndex, 0, 400)
       }, this.interval)
     },
+  },
+  destroyed() {
+    clearTimeout(this.timer)
   },
 }
 </script>
