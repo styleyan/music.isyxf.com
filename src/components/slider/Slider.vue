@@ -4,12 +4,7 @@
       <slot></slot>
     </div>
     <div class="dots">
-      <span 
-        class="dot" 
-        v-for="(item, index) in dots"
-        :class="{active: currentPageIndex === index}"
-        :key="index"
-      ></span>
+      <span class="dot" v-for="(item, index) in dots" :class="{active: currentPageIndex === index}" :key="index"></span>
     </div>
   </div>
 </template>
@@ -53,9 +48,15 @@ export default {
         this._play()
       }
     }, 20)
+
+    window.addEventListener('resize', () => {
+      if (!this.slider) return
+      this._setSliderWidth(true)
+      this.slider.refesh()
+    })
   },
   methods: {
-    _setSliderWidth() {
+    _setSliderWidth(isResize) {
       this.children = this.$refs.sliderGroup.children
       let width = 0
       let sliderWidth = this.$refs.slider.clientWidth
@@ -64,7 +65,7 @@ export default {
         child.style.width = `${sliderWidth}px`
         width += sliderWidth
       })
-      if (this.loop) {
+      if (this.loop && !isResize) {
         width += 2 * sliderWidth
       }
       this.$refs.sliderGroup.style.width = `${width}px`
@@ -72,13 +73,12 @@ export default {
     _initSlider() {
       this.slider = new BScroll(this.$refs.slider, {
         scrollX: true,
-        scrollY: false,
         momentum: false,
-        snap: true,
-        snapLoop: this.loop,
-        snapThreshold: 0.3,
-        snapSpeed: 400,
-        click: true,
+        snap: {
+          loop: this.loop,
+          threshold: 0.3,
+          speed: 400,
+        },
       })
 
       this.slider.on('scrollEnd', () => {
@@ -87,6 +87,16 @@ export default {
           pageIndex -= 1
         }
         this.currentPageIndex = pageIndex
+
+        if (this.autoPlay) {
+          this._play()
+        }
+      })
+
+      this.slider.on('beforeScrollStart', () => {
+        if (this.autoPlay) {
+          clearTimeout(this.timer)
+        }
       })
     },
     _initDots() {
@@ -109,7 +119,6 @@ export default {
   @import "~@stylus/variable"
   .slider
     min-height: 1px
-    position : relative
   .slider-group
     position: relative
     overflow: hidden

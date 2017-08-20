@@ -17,7 +17,6 @@ export function addClass(el, className) {
   if (hasClass(el, className)) {
     return
   }
-
   const newClassArr = el.className.split(' ')
   newClassArr.push(className)
   el.className = newClassArr.join(' ')

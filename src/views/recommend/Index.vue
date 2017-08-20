@@ -1,12 +1,14 @@
 <template>
   <div>
-    <slider v-if="recommends.length">
-      <div v-for="(item,key) in recommends" :key="key">
-        <a :href="item.linkUrl">
-          <img :src="item.picUrl" />
-        </a>
-      </div>
-    </slider>
+    <div class="slider-wrapper" v-if="recommends.length">
+      <slider>
+        <div v-for="(item,key) in recommends" :key="key">
+          <a :href="item.linkUrl">
+            <img :src="item.picUrl" />
+          </a>
+        </div>
+      </slider>
+    </div>
   </div>
 </template>
 
@@ -39,3 +41,10 @@ export default {
   },
 }
 </script>
+
+<style lang="stylus" scoped>
+.slider-wrapper
+  position: relative
+  width: 100%
+  overflow: hidden
+</style>
