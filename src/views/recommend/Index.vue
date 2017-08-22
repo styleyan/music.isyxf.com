@@ -1,40 +1,51 @@
 <template>
-  <div>
-    <div class="slider-wrapper" v-if="recommends.length">
-      <slider>
-        <div v-for="(item,key) in recommends" :key="key">
-          <a :href="item.linkUrl">
-            <img :src="item.picUrl" />
-          </a>
+  <div class="recommend" ref="recommend">
+    <scroll ref="scroll" class="recommend-content" :data="descList">
+      <div>
+        <div class="slider-wrapper" v-if="recommends.length">
+          <slider>
+            <div v-for="(item,key) in recommends" :key="key">
+              <a :href="item.linkUrl">
+                <img @load="loadImage" :src="item.picUrl" />
+              </a>
+            </div>
+          </slider>
         </div>
-      </slider>
-    </div>
-    <div class="recommend-list">
-      <h1 class="list-title">热门歌单推荐</h1>
-      <ul>
-        <li v-for="(item, key) in descList" :key="key" class="item">
-          <div class="icon">
-            <img width="60" height="60" :src="item.imgurl" />
-          </div>
-          <div class="text">
-            <h2 class="name" v-html="item.creator.name"></h2>
-            <p class="desc" v-html="item.dissname"></p>
-          </div>
-        </li>
-      </ul>
-    </div>
+        <div class="recommend-list">
+          <h1 class="list-title">热门歌单推荐</h1>
+          <ul>
+            <li v-for="(item, key) in descList" :key="key" class="item">
+              <div class="icon">
+                <img width="60" height="60" v-lazy="item.imgurl" />
+              </div>
+              <div class="text">
+                <h2 class="name" v-html="item.creator.name"></h2>
+                <p class="desc" v-html="item.dissname"></p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="loading-container" v-show="!descList.length">
+        <loading></loading>
+      </div>
+    </scroll>
   </div>
 </template>
 
 <script>
-import { getRecommend, getDiscList } from '@api/recommend'
 import { ERR_OK } from '@api/config'
+import { getRecommend, getDiscList } from '@api/recommend'
+import Loading from '@components/loading/Loading.vue'
 import Slider from '@components/slider/Slider.vue'
+import Scroll from '@components/scroll/Scroll.vue'
 
 export default {
   name: 'recommend',
   components: {
     Slider,
+    Scroll,
+    Loading,
   },
   data() {
     return {
@@ -57,20 +68,38 @@ export default {
     _getDiscList() {
       getDiscList().then((data) => {
         if (data.code === ERR_OK) {
-          console.log(data)
           this.descList = data.data.list
         }
       })
+    },
+    loadImage() {
+      if (!this.checkLoaded) {
+        this.$refs.scroll.refresh()
+        this.checkLoaded = true
+      }
     },
   },
 }
 </script>
 
 <style lang="stylus" scoped>
+@import "~@stylus/variable"
+
+.recommend
+  position: fixed
+  width: 100%
+  top: 88px
+  bottom: 0
+
+.recommend-content
+  height: 100%
+  overflow: hidden
+
 .slider-wrapper
   position: relative
   width: 100%
   overflow: hidden
+
 .recommend-list
   .list-title
     height: 65px
@@ -100,4 +129,10 @@ export default {
     color: $color-text
   .desc
     color: $color-text-d
+
+.loading-container
+  position: absolute
+  width: 100%
+  top: 50%
+  transform: translateY(-50%)
 </style>
