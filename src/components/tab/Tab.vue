@@ -34,7 +34,7 @@ export default {
 
     .tab-link
       padding-bottom : 5px
-      color : $color-text-1
+      color : $color-text-l
     
     &.router-link-active
       .tab-link
