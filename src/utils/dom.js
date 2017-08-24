@@ -21,3 +21,16 @@ export function addClass(el, className) {
   newClassArr.push(className)
   el.className = newClassArr.join(' ')
 }
+
+/**
+ * 获取元素中data-*属性上的值
+ */
+export function editElementData(el, name, val) {
+  const prefix = 'data-'
+  name = prefix + name
+  if (val) {
+    return el.setAttribute(name, val)
+  } else {
+    return el.getAttribute(name)
+  }
+}
