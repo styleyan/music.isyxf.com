@@ -1,5 +1,10 @@
 <template>
-  <scroll class="listview" :data="data" ref="listview">
+  <scroll class="listview" 
+    :data="data" 
+    :listenScroll="listenScroll"
+    @scroll="scroll"
+    :probeType="probeType" 
+    ref="listview">
     <ul>
       <li v-for="group in data" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
@@ -11,24 +16,40 @@
         </ul>
       </li>
     </ul>
-    <div class="list-shortcut" @touchstart="onShortcutTouchStart">
+    <div class="list-shortcut"
+      @touchmove.stop.prevent="onShortcutTouchMove" 
+      @touchstart="onShortcutTouchStart">
       <ul>
-        <li v-for="(item, index) in shortcutList" :data-index="index" class="item">
+        <li v-for="(item, index) in shortcutList" 
+          :data-index="index"
+          :class="{'current': currentIndex==index}" 
+          class="item">
           {{item}}
         </li>
       </ul>
+    </div>
+    <div class="list-fixed" v-show="fixedTitle" ref="fixed">
+      <h1 class="fixed-title">{{fixedTitle}}</h1>
+    </div>
+    <div v-show="!data.length" class="loading-container">
+      <loading></loading>
     </div>
   </scroll>
 </template>
 
 <script>
 import Scroll from '@components/scroll/Scroll.vue'
+import Loading from '@components/loading/Loading.vue'
 import { editElementData } from '@utils/dom'
+
+const ANCHOR_HEIGHT = 18
+const TITLE_HEIGHT = 30
 
 export default {
   name: 'list-view',
   components: {
     Scroll,
+    Loading,
   },
   props: {
     data: {
@@ -36,15 +57,96 @@ export default {
       default: [],
     },
   },
+  data() {
+    return {
+      scrollY: -1,
+      currentIndex: 0,
+      diff: -1,
+    }
+  },
+  created() {
+    this.touch = {}
+    this.listenScroll = true
+    this.listHeight = []
+    this.probeType = 3
+  },
   computed: {
     shortcutList() {
       return this.data.map((item) => item.title.substr(0, 1))
+    },
+    fixedTitle() {
+      if (this.scrollY > 0) {
+        return ''
+      }
+      return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
     },
   },
   methods: {
     onShortcutTouchStart(e) {
       const anchorIndex = editElementData(e.target, 'index')
-      this.$refs.listview.scrollToElement(this.$refs.listGroup[anchorIndex], 100)
+      const firstTouch = e.touches[0]
+      this.touch.y1 = firstTouch.pageY
+      this.touch.anchorIndex = anchorIndex
+      this._scrollTo(anchorIndex)
+    },
+    onShortcutTouchMove(e) {
+      let firstTouch = e.touches[0]
+      this.touch.y2 = firstTouch.pageY
+      let delta = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT | 0
+      let anchorIndex = Number.parseInt(this.touch.anchorIndex) + delta
+      this._scrollTo(anchorIndex)
+    },
+    scroll(pos) {
+      this.scrollY = pos.y
+    },
+    _scrollTo(index) {
+      this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 600)
+    },
+    _calculateHeight() {
+      this.listHeight = []
+      const list = this.$refs.listGroup
+      let height = 0
+      this.listHeight.push(height)
+      list.forEach((item) => {
+        height += item.clientHeight
+        this.listHeight.push(height)
+      })
+    },
+  },
+  watch: {
+    data() {
+      setTimeout(() => {
+        this._calculateHeight()
+      }, 20)
+    },
+    scrollY(newY) {
+      const listHeight = this.listHeight
+      // 当滚动到顶部， newY > 0
+      if (newY > 0) {
+        this.currentIndex = 0
+        return
+      }
+      // 在中间部分滚动
+      for (let i = 0; i < listHeight.length - 1; i++) {
+        let height1 = listHeight[i]
+        let height2 = listHeight[i + 1]
+
+        if (-newY >= height1 && -newY < height2) {
+          this.currentIndex = i
+          this.diff = height2 + newY
+          return
+        }
+      }
+      // 当滚动到底部,且-newY大于最后一个元素的上限
+      this.currentIndex = listHeight.length - 2
+    },
+    diff(newVal) {
+      let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT ? newVal - TITLE_HEIGHT : 0)
+      if (this.fixedTop === fixedTop) {
+        return
+      }
+      this.fixedTop = fixedTop
+      this.$refs.fixed.style.transform = `translate3d(0,${fixedTop}px,0)`
     },
   },
 }
