@@ -18,7 +18,7 @@ npm run build
 ## 插件列表
 - 滚动插件(better-scroll)
 - 图片懒加载(vue-lazyload)
-
+- 创建css3动画(create-keyframe-animation)
 ## 更新日记
 
 
