@@ -14,6 +14,8 @@ npm run dev
 # build for production with minification
 npm run build
 ```
+## 后期需要优化的点
+- 
 
 ## 插件列表
 - 滚动插件(better-scroll)
