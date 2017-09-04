@@ -41,6 +41,7 @@ import SongList from '@components/song-list/Index.vue'
 import Loading from '@components/loading/Loading.vue'
 import { prefixStyle } from '@utils/dom'
 import {mapActions} from 'vuex'
+import {playlistMixin} from '@mixin'
 
 const RESERVED_HEIGHT = 40
 const transform = prefixStyle('transform')
@@ -48,6 +49,7 @@ const backdrop = prefixStyle('backdrop-filter')
 
 export default {
   name: 'music-list',
+  mixins: [playlistMixin],
   components: {
     Scroll,
     SongList,
@@ -77,15 +79,6 @@ export default {
     bgStyle() {
       return `background-image:url(${this.bgImage})`
     },
-  },
-  created() {
-    this.probeType = 3
-    this.listenScroll = true
-  },
-  mounted() {
-    this.imageHeight = this.$refs.bgImage.clientHeight
-    this.minTranslateY = -this.imageHeight + RESERVED_HEIGHT
-    this.$refs.list.$el.style.top = `${this.imageHeight}px`
   },
   watch: {
     scrollY(newY) {
@@ -119,7 +112,21 @@ export default {
       this.$refs.bgImage.style[transform] = `scale(${scale})`
     },
   },
+  created() {
+    this.probeType = 3
+    this.listenScroll = true
+  },
+  mounted() {
+    this.imageHeight = this.$refs.bgImage.clientHeight
+    this.minTranslateY = -this.imageHeight + RESERVED_HEIGHT
+    this.$refs.list.$el.style.top = `${this.imageHeight}px`
+  },
   methods: {
+    handlePlaylist(playlist) {
+      const bottom = playlist.length > 0 ? '60px' : ''
+      this.$refs.list.$el.style.bottom = bottom
+      this.$refs.list.refresh()
+    },
     scroll(pos) {
       this.scrollY = pos.y
     },

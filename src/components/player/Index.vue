@@ -12,27 +12,21 @@
           <h1 class="title" v-html="currentSong.name"></h1>
           <h2 class="subtitle" v-html="currentSong.singer"></h2>
         </div>
-        <div class="middle"
-          @touchstart.prevent="middleTouchStart"
-          @touchmove.prevent="middleTouchMove"
-          @touchend="middleTouchEnd">
+        <div class="middle" @touchstart.prevent="middleTouchStart" @touchmove.prevent="middleTouchMove" @touchend="middleTouchEnd">
           <div class="middle-l" ref="middleL">
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" :class="cdCls">
                 <img class="image" :src="currentSong.image" />
               </div>
             </div>
+            <div class="playing-lyric-wrapper">
+              <div class="playing-lyric">{{playingLyric}}</div>
+            </div>
           </div>
-          <scroll class="middle-r" 
-            :data="currentLyric && currentLyric.lines"
-            ref="lyricList">
+          <scroll class="middle-r" :data="currentLyric && currentLyric.lines" ref="lyricList">
             <div class="lyric-wrapper">
               <div v-if="currentLyric">
-                <p ref="lyricLine"
-                  class="text"
-                  :class="{'current': currentLineNum === index}"
-                  :key="index"
-                  v-for="(line, index) in currentLyric.lines">{{line.txt}}</p>
+                <p ref="lyricLine" class="text" :class="{'current': currentLineNum === index}" :key="index" v-for="(line, index) in currentLyric.lines">{{line.txt}}</p>
               </div>
             </div>
           </scroll>
@@ -120,6 +114,7 @@ export default {
       currentLyric: null,
       currentLineNum: 0,
       currentShow: 'cd',
+      playingLyric: '',
     }
   },
   computed: {
@@ -150,6 +145,27 @@ export default {
       'mode',
       'sequenceList',
     ]),
+  },
+  watch: {
+    currentSong(newSong, oldSong) {
+      if (newSong.id === oldSong.id) return
+      if (this.currentLyric) this.currentLyric.stop()
+
+      // 解决在微信中页面从后台切换到前台时，不会播放问题
+      // 根本原因是切换到后台时，js代码不会执行而audio是会把当前歌曲播放完的
+      setTimeout(() => {
+        this.$nextTick(() => {
+          this.$refs.audio.play()
+          this.getLyric()
+        })
+      }, 1000)
+    },
+    playing(newPlaying) {
+      const audio = this.$refs.audio
+      this.$nextTick(() => {
+        newPlaying ? audio.play() : audio.pause()
+      })
+    },
   },
   created() {
     this.touch = {}
@@ -203,6 +219,10 @@ export default {
     togglePlaying() {
       if (!this.songReady) return
       this.setPlayingState(!this.playing)
+
+      if (this.currentLyric) {
+        this.currentLyric.togglePlay()
+      }
     },
     end() {
       if (this.mode === playMode.loop) {
@@ -214,28 +234,41 @@ export default {
     loop() {
       this.$refs.audio.currentTime = 0
       this.$refs.audio.play()
+      if (this.currentLyric) {
+        this.currentLyric.seek(0)
+      }
     },
     next() {
       if (!this.songReady) return
-      let index = this.currentIndex + 1
-      if (index === this.playlist.length) {
-        index = 0
-      }
-      this.setCurrentIndex(index)
-      if (!this.playing) {
-        this.togglePlaying()
+
+      // 考虑边界线问题，只有一首歌的情况
+      if (this.playlist.length === 1) {
+        this.loop()
+      } else {
+        let index = this.currentIndex + 1
+        if (index === this.playlist.length) {
+          index = 0
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.togglePlaying()
+        }
       }
       this.songReady = false
     },
     prev() {
       if (!this.songReady) return
-      let index = this.currentIndex - 1
-      if (index === -1) {
-        index = this.playlist.length - 1
-      }
-      this.setCurrentIndex(index)
-      if (!this.playing) {
-        this.togglePlaying()
+      if (this.playlist.length === 1) {
+        this.loop()
+      } else {
+        let index = this.currentIndex - 1
+        if (index === -1) {
+          index = this.playlist.length - 1
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.togglePlaying()
+        }
       }
       this.songReady = false
     },
@@ -277,9 +310,14 @@ export default {
       return `${minute}:${second}`
     },
     onProgressBarChange(percent) {
-      this.$refs.audio.currentTime = this.currentSong.duration * percent
+      const currentTime = this.currentSong.duration * percent
+      this.$refs.audio.currentTime = currentTime
       if (!this.playing) {
         this.togglePlaying()
+      }
+
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
       }
     },
     getLyric() {
@@ -289,9 +327,13 @@ export default {
           this.currentLyric.play()
         }
         console.log(this.currentLyric)
+      }).catch(() => {
+        this.currentLyric = null
+        this.playingLyric = ''
+        this.currentLineNum = 0
       })
     },
-    handleLyric({lineNum, txt}) {
+    handleLyric({ lineNum, txt }) {
       this.currentLineNum = lineNum
       if (lineNum > 5) {
         let lineEl = this.$refs.lyricLine[lineNum - 5]
@@ -299,6 +341,7 @@ export default {
       } else {
         this.$refs.lyricList.scrollTo(0, 0, 1000)
       }
+      this.playingLyric = txt
     },
     middleTouchStart(e) {
       this.touch.initiated = true
@@ -380,21 +423,6 @@ export default {
       setPlayMode: 'SET_PLAY_MODE',
       setPlaylist: 'SET_PLAYLIST',
     }),
-  },
-  watch: {
-    currentSong(newSong, oldSong) {
-      if (newSong.id === oldSong.id) return
-      this.$nextTick(() => {
-        this.$refs.audio.play()
-        this.getLyric()
-      })
-    },
-    playing(newPlaying) {
-      const audio = this.$refs.audio
-      this.$nextTick(() => {
-        newPlaying ? audio.play() : audio.pause()
-      })
-    },
   },
 }
 </script>

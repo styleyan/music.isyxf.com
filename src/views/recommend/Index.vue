@@ -39,9 +39,11 @@ import { getRecommend, getDiscList } from '@api/recommend'
 import Loading from '@components/loading/Loading.vue'
 import Slider from '@components/slider/Slider.vue'
 import Scroll from '@components/scroll/Scroll.vue'
+import {playlistMixin} from '@mixin'
 
 export default {
   name: 'recommend',
+  mixins: [playlistMixin],
   components: {
     Slider,
     Scroll,
@@ -58,6 +60,11 @@ export default {
     this._getDiscList()
   },
   methods: {
+    handlePlaylist(playlist) {
+      const bottom = playlist.length > 0 ? '60px' : '0'
+      this.$refs.recommend.style.bottom = bottom
+      this.$refs.scroll.refresh()
+    },
     _getRecommend() {
       getRecommend().then((data) => {
         if (data.code === ERR_OK) {

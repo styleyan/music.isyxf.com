@@ -29,6 +29,7 @@ module.exports = {
       '@views': resolve('src/views'),
       '@utils': resolve('src/utils'),
       '@api': resolve('src/api'),
+      '@mixin': resolve('src/mixin'),
     }
   },
   module: {
