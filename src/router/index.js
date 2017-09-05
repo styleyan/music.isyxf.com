@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Recommend from '@views/recommend/Index'
 import RecommendDetail from '@views/recommend/Detail'
 import Rank from '@views/rank/Index'
+import RankDetail from '@views/rank/Detail'
 import Search from '@views/search/Index'
 import Singer from '@views/singer/Index'
 import SingerDetail from '@views/singer/Detail'
@@ -38,6 +39,12 @@ export default new Router({
     {
       path: '/rank',
       component: Rank,
+      children: [
+        {
+          path: ':id',
+          component: RankDetail,
+        },
+      ],
     },
     {
       path: '/search',
