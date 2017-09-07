@@ -1,5 +1,8 @@
 <template>
-  <div class="suggest">
+  <scroll class="suggest" 
+    :pullup="pullup" 
+    :data="result"
+    @scrollToEnd="searchMore">
     <ul class="suggest-list">
       <li class="suggest-item"
         v-for="(item, index) in result"
@@ -11,17 +14,26 @@
           <p class="text" v-html="getDisplayName(item)"></p>
         </div>
       </li>
+      <loading v-show="hasMore" title=""></loading>
     </ul>
-  </div>
+  </scroll>
 </template>
 
 <script>
   import {search} from '@api/search'
   import {ERR_OK} from '@api/config'
-  import {filterSinger} from '@utils/song'
+  import Scroll from '@components/scroll/Scroll.vue'
+  import {createSong} from '@utils/song'
+  import Loading from '@components/loading/Loading.vue'
+
   const TYPE_SINGER = 'singer'
+  const perpage = 20
 
   export default {
+    components: {
+      Scroll,
+      Loading,
+    },
     props: {
       query: {
         type: String,
@@ -36,6 +48,8 @@
       return {
         page: 1,
         result: [],
+        pullup: true,
+        hasMore: true,
       }
     },
     watch: {
@@ -48,14 +62,32 @@
         return item.type === TYPE_SINGER ? 'icon-mine' : 'icon-music'
       },
       getDisplayName(item) {
-        return item.type === TYPE_SINGER ? item.singername : (`${item.songname}-${filterSinger(item.singer)}`)
+        return item.type === TYPE_SINGER ? item.name : (`${item.name}-${item.singer}`)
       },
       search() {
-        search(this.query, this.page, this.showSinger).then((res) => {
+        this.hasMore = true
+        search(this.query, this.page, this.showSinger, perpage).then((res) => {
           if (res.code === ERR_OK) {
             this.result = this._genResult(res.data)
+            this._checkMore(res.data)
           }
         })
+      },
+      searchMore() {
+        if (!this.hasMore) return
+        this.page++
+        this.search(this.query, this.page, this.showSinger, perpage).then((res) => {
+          if (res.code === ERR_OK) {
+            this.result = this.result.concat(this._genResult(res.data))
+            this._checkMore(res.data)
+          }
+        })
+      },
+      _checkMore(data) {
+        const song = data.song
+        if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
+          this.hasMore = false
+        }
       },
       _genResult(data) {
         let ret = []
@@ -66,9 +98,17 @@
           })
         }
         if (data.song) {
-          ret = ret.concat(data.song.list)
+          ret = this.result.concat(this._normalizeSongs(data.song.list))
         }
-
+        return ret
+      },
+      _normalizeSongs(list) {
+        let ret = []
+        list.forEach((musicData) => {
+          if (musicData.songid && musicData.albumid) {
+            ret.push(createSong(musicData))
+          }
+        })
         return ret
       },
     },

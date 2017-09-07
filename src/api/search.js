@@ -20,7 +20,7 @@ export function search(query, page, zhida, perpage) {
     w: query,
     p: page,
     perpage,
-    n: perpage,
+    n: perpage || 40,
     catZhida: zhida ? 1 : 0,
     zhidaqu: 1,
     t: 0,
