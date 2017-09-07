@@ -3,7 +3,10 @@
     <div class="search-box-wrapper">
       <search-box v-model="query"></search-box>
     </div>
-    <shortcut v-model="query" :list="hotKey"></shortcut>
+    <shortcut v-show="!query" v-model="query" :list="hotKey"></shortcut>
+    <div v-show="query" class="search-result">
+      <suggest :query="query"></suggest>
+    </div>
   </div>
 </template>
 
@@ -12,11 +15,13 @@ import SearchBox from '@components/search-box/Index.vue'
 import {getHotKey} from '@api/search'
 import {ERR_OK} from '@api/config'
 import Shortcut from '@components/shortcut/Index.vue'
+import Suggest from '@components/suggest/Index.vue'
 
 export default {
   components: {
     SearchBox,
     Shortcut,
+    Suggest,
   },
   data() {
     return {
