@@ -1,41 +1,28 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input class="box" v-model="query" :placeholder="placeholder" />
-    <i v-show="query" @click="clear" class="icon-dismiss"></i>
+    <input class="box" v-model="modeValue" :placeholder="placeholder" />
+    <i v-show="modeValue" @click="clear" class="icon-dismiss"></i>
   </div>
 </template>
 
 <script>
-  export default {
-    props: {
-      placeholder: {
-        type: String,
-        default: '搜索歌曲、歌手',
-      },
-      value: {
-        default: '',
-      },
+import modeValue from '@mixin/mode-value'
+
+export default {
+  mixins: [modeValue],
+  props: {
+    placeholder: {
+      type: String,
+      default: '搜索歌曲、歌手',
     },
-    data() {
-      return {
-        query: this.value,
-      }
+  },
+  methods: {
+    clear() {
+      this.modeValue = ''
     },
-    methods: {
-      clear() {
-        this.query = ''
-      },
-    },
-    watch: {
-      query(newVal) {
-        this.$emit('input', newVal)
-      },
-      value(newVal) {
-        this.query = newVal
-      },
-    },
-  }
+  },
+}
 </script>
 
 <style scoped lang="stylus">

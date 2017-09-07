@@ -4,13 +4,13 @@
       <div class="hot-key">
         <h1 class="title">热门搜索</h1>
         <ul>
-          <li class="item" 
+          <li class="item"
             v-for="(item, index) in list"
-            @click="clickHandle(index)" 
+            @click="clickHandle(index)"
             :key="index">
             <span>{{item.k}}</span>
           </li>
-          <li class="item">{{active}}</li>
+          <li class="item">{{modeValue}}</li>
         </ul>
       </div>
     </div>
@@ -18,35 +18,22 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      list: {
-        type: Array,
-        default: () => [],
-      },
-      value: {
-        default: '',
-      },
+import modeValue from '@mixin/mode-value'
+
+export default {
+  mixins: [modeValue],
+  props: {
+    list: {
+      type: Array,
+      default: () => [],
     },
-    data() {
-      return {
-        active: this.value,
-      }
+  },
+  methods: {
+    clickHandle(index) {
+      this.modeValue = this.list[index].k
     },
-    watch: {
-      active(newVal) {
-        this.$emit('input', newVal)
-      },
-      value(newVal) {
-        this.active = newVal
-      },
-    },
-    methods: {
-      clickHandle(index) {
-        this.active = this.list[index].k
-      },
-    },
-  }
+  },
+}
 </script>
 
 <style lang="stylus" scoped>
