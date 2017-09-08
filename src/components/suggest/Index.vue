@@ -2,11 +2,13 @@
   <scroll class="suggest" 
     :pullup="pullup" 
     :data="result"
+    ref="suggest"
     @scrollToEnd="searchMore">
     <ul class="suggest-list">
       <li class="suggest-item"
         v-for="(item, index) in result"
-        :key="index">
+        :key="index"
+        @click="selectItem(item)">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
         </div>
@@ -25,6 +27,8 @@
   import Scroll from '@components/scroll/Scroll.vue'
   import {createSong} from '@utils/song'
   import Loading from '@components/loading/Loading.vue'
+  import Singer from '@utils/singer'
+  import {mapMutations, mapActions} from 'vuex'
 
   const TYPE_SINGER = 'singer'
   const perpage = 20
@@ -62,10 +66,12 @@
         return item.type === TYPE_SINGER ? 'icon-mine' : 'icon-music'
       },
       getDisplayName(item) {
-        return item.type === TYPE_SINGER ? item.name : (`${item.name}-${item.singer}`)
+        return item.type === TYPE_SINGER ? item.singername : (`${item.name}-${item.singer}`)
       },
       search() {
         this.hasMore = true
+        this.page = 1
+        this.$refs.suggest.scrollTo(0, 0)
         search(this.query, this.page, this.showSinger, perpage).then((res) => {
           if (res.code === ERR_OK) {
             this.result = this._genResult(res.data)
@@ -76,12 +82,26 @@
       searchMore() {
         if (!this.hasMore) return
         this.page++
-        this.search(this.query, this.page, this.showSinger, perpage).then((res) => {
+        search(this.query, this.page, this.showSinger, perpage).then((res) => {
           if (res.code === ERR_OK) {
             this.result = this.result.concat(this._genResult(res.data))
             this._checkMore(res.data)
           }
         })
+      },
+      selectItem(item) {
+        if (item.type === TYPE_SINGER) {
+          const singer = new Singer({
+            id: item.singermid,
+            name: item.singername,
+          })
+          this.setSinger(singer)
+          this.$router.push({
+            path: `/search/${singer.id}`,
+          })
+        } else {
+          this.insertSong(item)
+        }
       },
       _checkMore(data) {
         const song = data.song
@@ -98,19 +118,25 @@
           })
         }
         if (data.song) {
-          ret = this.result.concat(this._normalizeSongs(data.song.list))
+          ret = ret.concat(this._normalizeSongs(data.song.list))
         }
         return ret
       },
       _normalizeSongs(list) {
         let ret = []
         list.forEach((musicData) => {
-          if (musicData.songid && musicData.albumid) {
+          if (musicData.songid && musicData.albummid) {
             ret.push(createSong(musicData))
           }
         })
         return ret
       },
+      ...mapMutations({
+        setSinger: 'SET_SINGER',
+      }),
+      ...mapActions([
+        'insertSong',
+      ]),
     },
   }
 </script>

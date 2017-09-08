@@ -7,6 +7,7 @@
     <div v-show="query" class="search-result">
       <suggest :query="query"></suggest>
     </div>
+    <router-view></router-view>
   </div>
 </template>
 
