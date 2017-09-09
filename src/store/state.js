@@ -1,4 +1,5 @@
 import {playMode} from '@utils/config'
+import {loadSearch} from '@utils/catch'
 
 const state = {
   singer: {},
@@ -10,6 +11,7 @@ const state = {
   currentIndex: -1,
   disc: {},
   topList: {},
+  searchHistory: loadSearch(),
 }
 
 export default state

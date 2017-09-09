@@ -5,7 +5,7 @@
     </div>
     <shortcut v-show="!query" v-model="query" :list="hotKey"></shortcut>
     <div v-show="query" class="search-result">
-      <suggest @listScroll="blurInput" :query="query"></suggest>
+      <suggest @listScroll="blurInput" @select="saveSearch" :query="query"></suggest>
     </div>
     <router-view></router-view>
   </div>
@@ -17,6 +17,7 @@ import {getHotKey} from '@api/search'
 import {ERR_OK} from '@api/config'
 import Shortcut from '@components/shortcut/Index.vue'
 import Suggest from '@components/suggest/Index.vue'
+import {mapActions} from 'vuex'
 
 export default {
   components: {
@@ -37,6 +38,9 @@ export default {
     blurInput() {
       this.$refs.searchBox.blur()
     },
+    saveSearch() {
+      this.saveSearchHistory(this.query)
+    },
     _getHotKey() {
       getHotKey().then((res) => {
         if (res.code === ERR_OK) {
@@ -45,6 +49,9 @@ export default {
         }
       })
     },
+    ...mapActions([
+      'saveSearchHistory',
+    ]),
   },
 }
 </script>

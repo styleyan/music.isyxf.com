@@ -23,6 +23,7 @@ npm run build
 - 创建css3动画(create-keyframe-animation)
 - base64解码，编码库(js-base64)
 - 歌词解析时间(lyric-parse)
+- sessionStorage 和 localStorage 操作包(good-storage)
 ## 更新日记
 
 
