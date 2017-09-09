@@ -78,24 +78,26 @@
             <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click="showPlaylist">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <playlist ref="playlist"></playlist>
     <audio ref="audio" :src="currentSong.url" @canplay="ready" @timeupdate="UpDateTime" @ended="end" @error="error"></audio>
   </div>
 </template>
 <script>
-import { mapGetters, mapMutations } from 'vuex'
-import animations from 'create-keyframe-animation'
 import { prefixStyle } from '@utils/dom'
 import utils from '@utils'
-import ProgressBar from '@components/progress-bar/Index.vue'
-import ProgressCircle from '@components/progress-circle/Index.vue'
 import { playMode } from '@utils/config'
 import Lyric from 'lyric-parser'
+import { mapGetters, mapMutations } from 'vuex'
+import animations from 'create-keyframe-animation'
+import ProgressBar from '@components/progress-bar/Index.vue'
+import ProgressCircle from '@components/progress-circle/Index.vue'
 import Scroll from '@components/scroll/Scroll.vue'
+import Playlist from '@components/playlist/Index.vue'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
@@ -106,6 +108,7 @@ export default {
     ProgressBar,
     ProgressCircle,
     Scroll,
+    Playlist,
   },
   data() {
     return {
@@ -392,6 +395,9 @@ export default {
 
       this.$refs.middleL.style.opacity = opacity
       this.$refs.middleL.style[transitionDuration] = '450ms'
+    },
+    showPlaylist() {
+      this.$refs.playlist.show()
     },
     _pad(num, n = 2) {
       let len = num.toString().length
