@@ -1,11 +1,11 @@
 <template>
   <div class="search">
     <div class="search-box-wrapper">
-      <search-box v-model="query"></search-box>
+      <search-box ref="searchBox" v-model="query"></search-box>
     </div>
     <shortcut v-show="!query" v-model="query" :list="hotKey"></shortcut>
     <div v-show="query" class="search-result">
-      <suggest :query="query"></suggest>
+      <suggest @listScroll="blurInput" :query="query"></suggest>
     </div>
     <router-view></router-view>
   </div>
@@ -34,6 +34,9 @@ export default {
     this._getHotKey()
   },
   methods: {
+    blurInput() {
+      this.$refs.searchBox.blur()
+    },
     _getHotKey() {
       getHotKey().then((res) => {
         if (res.code === ERR_OK) {

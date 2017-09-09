@@ -1,7 +1,7 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input class="box" v-model="modeValue" :placeholder="placeholder" />
+    <input class="box" ref="query" v-model="modeValue" :placeholder="placeholder" />
     <i v-show="modeValue" @click="clear" class="icon-dismiss"></i>
   </div>
 </template>
@@ -17,9 +17,17 @@ export default {
       default: '搜索歌曲、歌手',
     },
   },
+  data() {
+    return {
+      nodeValueDelay: 300,
+    }
+  },
   methods: {
     clear() {
       this.modeValue = ''
+    },
+    blur() {
+      this.$refs.query.blur()
     },
   },
 }
