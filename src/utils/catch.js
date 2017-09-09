@@ -29,7 +29,29 @@ export function saveSearch(query) {
   return searches
 }
 
+function deleteFromArray(arr, compare) {
+  const index = arr.findIndex(compare)
+  if (index > -1) {
+    arr.splice(index, 1)
+  }
+}
+
 // 从storage中获取数据
 export function loadSearch() {
   return storage.get(SEATCH_KEY, [])
+}
+
+// 删除搜索历史
+export function deleteSearch(query) {
+  let searches = storage.get(SEATCH_KEY, [])
+  deleteFromArray(searches, (item) => {
+    return item === query
+  })
+  storage.set(SEATCH_KEY, searches)
+  return searches
+}
+
+export function clearSearch() {
+  storage.remove(SEATCH_KEY)
+  return []
 }

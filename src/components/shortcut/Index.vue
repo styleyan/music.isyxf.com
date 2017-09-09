@@ -6,13 +6,14 @@
         <ul>
           <li class="item"
             v-for="(item, index) in list"
-            @click="clickHandle(index)"
+            @click="clickHandle(item.k)"
             :key="index">
             <span>{{item.k}}</span>
           </li>
-          <li class="item">{{modeValue}}</li>
         </ul>
       </div>
+      <slot>
+      </slot>
     </div>
   </div>
 </template>
@@ -29,8 +30,8 @@ export default {
     },
   },
   methods: {
-    clickHandle(index) {
-      this.modeValue = this.list[index].k
+    clickHandle(val) {
+      this.modeValue = val
     },
   },
 }
