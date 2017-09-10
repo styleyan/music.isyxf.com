@@ -44,8 +44,11 @@ export default {
       const bottom = playlist.length > 0 ? '60px' : ''
       this.$refs.shortcutWrapper.style.bottom = bottom
       this.$refs.shortcut.refresh()
-      console.log(bottom)
-      document.getElementById('searchResult').style.bottom = bottom
+
+      const searchResult = document.getElementById('searchResult')
+      if (searchResult) {
+        searchResult.style.bottom = bottom
+      }
       this.$emit('refresh')
     },
     clickHandle(val) {

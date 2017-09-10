@@ -78,7 +78,7 @@
             <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
           </progress-circle>
         </div>
-        <div class="control" @click="showPlaylist">
+        <div class="control" @click.stop="showPlaylist">
           <i class="icon-playlist"></i>
         </div>
       </div>
@@ -151,9 +151,15 @@ export default {
   },
   watch: {
     currentSong(newSong, oldSong) {
+      if (!newSong.id) return
       if (newSong.id === oldSong.id) return
-      if (this.currentLyric) this.currentLyric.stop()
 
+      if (this.currentLyric) {
+        this.currentLyric.stop()
+        this.currentTime = 0
+        this.playingLyric = ''
+        this.currentLineNum = 0
+      }
       // 解决在微信中页面从后台切换到前台时，不会播放问题
       // 根本原因是切换到后台时，js代码不会执行而audio是会把当前歌曲播放完的
       setTimeout(() => {
