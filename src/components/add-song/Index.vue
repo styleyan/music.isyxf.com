@@ -11,6 +11,9 @@
         <search-box ref="searchBox" placeholder="搜索歌曲" v-model="query"></search-box>
       </div>
       <div class="shortcut" v-show="!query">
+        <switches 
+          :switches="switches" 
+          v-model="currentIndex"></switches>
       </div>
       <div class="search-result" v-show="query">
         <suggest 
@@ -27,6 +30,7 @@
 import SearchBox from '@components/search-box/Index.vue'
 import Suggest from '@components/suggest/Index.vue'
 import searchMixin from '@mixin/search'
+import Switches from '@components/switches/Index.vue'
 
 export default {
   name: 'add-song',
@@ -34,11 +38,17 @@ export default {
   components: {
     SearchBox,
     Suggest,
+    Switches,
   },
   data() {
     return {
       showFalg: false,
       showSinger: false,
+      switches: [
+        {name: '最近播放'},
+        {name: '搜索历史'},
+      ],
+      currentIndex: 0,
     }
   },
   methods: {
