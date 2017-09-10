@@ -43,9 +43,11 @@ import Shortcut from '@components/shortcut/Index.vue'
 import Suggest from '@components/suggest/Index.vue'
 import SearchList from '@components/search-list/Index.vue'
 import Confirm from '@components/confirm/Index.vue'
-import {mapActions, mapGetters} from 'vuex'
+import {mapActions} from 'vuex'
+import searchMixin from '@mixin/search'
 
 export default {
+  mixins: [searchMixin],
   components: {
     SearchBox,
     Shortcut,
@@ -56,7 +58,6 @@ export default {
   data() {
     return {
       hotKey: [],
-      query: '',
     }
   },
   created() {
@@ -66,20 +67,8 @@ export default {
     shortcut() {
       return this.hotKey.concat(this.searchHistory)
     },
-    ...mapGetters([
-      'searchHistory',
-    ]),
   },
   methods: {
-    blurInput() {
-      this.$refs.searchBox.blur()
-    },
-    saveSearch() {
-      this.saveSearchHistory(this.query)
-    },
-    addQuery(val) {
-      this.query = val
-    },
     showConfirm() {
       this.$refs.confirm.show()
     },
@@ -95,8 +84,6 @@ export default {
       })
     },
     ...mapActions([
-      'saveSearchHistory',
-      'deleteSearchHistory',
       'clearSearchHistory',
     ]),
   },
