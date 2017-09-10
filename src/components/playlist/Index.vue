@@ -4,17 +4,17 @@
       <div class="list-wrapper" @click.stop>
         <div class="list-header">
           <h1 class="title">
-            <i class="icon"></i>
-            <span class="text"></span>
-            <span class="clear"><i class="icon-clear"></i></span>
+            <i class="icon" :class="iconMode" @click="changeMode"></i>
+            <span class="text">{{modeText}}</span>
+            <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
           </h1>
         </div>
         <scroll ref="listContent" :data="sequenceList" class="list-content">
-          <ul>
+          <transition-group name="list" tag="ul">
             <li class="item" 
               ref="listItem"
               v-for="(item, index) in sequenceList"
-              :key="index"
+              :key="item.id"
               @click="selectItem(item, index)">
               <i class="current" :class="getCurrentIcon(item)"></i>
               <span class="text">{{item.name}}</span>
@@ -25,7 +25,7 @@
                 <i class="icon-delete"></i>
               </span>
             </li>
-          </ul>
+          </transition-group>
         </scroll>
         <div class="list-operate">
           <div class="add">
@@ -37,19 +37,24 @@
           <span>关闭</span>
         </div>
       </div>
+      <confirm ref="confirm" @confirm="confirmClear" text="是否清空播放列表" confirmBtnText="清空"></confirm>
     </div>
   </transition>
 </template>
 
 <script>
-import {mapGetters, mapMutations, mapActions} from 'vuex'
+import {mapActions} from 'vuex'
 import Scroll from '@components/scroll/Scroll.vue'
 import {playMode} from '@utils/config'
+import Confirm from '@components/confirm/Index.vue'
+import {playerMixin} from '@mixin/player'
 
 export default {
   name: 'play-list',
+  mixins: [playerMixin],
   components: {
     Scroll,
+    Confirm,
   },
   data() {
     return {
@@ -57,12 +62,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
-      'sequenceList',
-      'currentSong',
-      'playlist',
-      'mode',
-    ]),
+    modeText() {
+      return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.random ? '随机播放' : '单曲循环'
+    },
   },
   methods: {
     show() {
@@ -102,12 +104,16 @@ export default {
         this.hide()
       }
     },
-    ...mapMutations({
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayingState: 'SET_PLAYING_STATE',
-    }),
+    showConfirm() {
+      this.$refs.confirm.show()
+    },
+    confirmClear() {
+      this.deleteSongList()
+      this.hide()
+    },
     ...mapActions([
       'deleteSong',
+      'deleteSongList',
     ]),
   },
   watch: {

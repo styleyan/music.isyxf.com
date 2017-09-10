@@ -64,11 +64,7 @@ export const insertSong = function ({commit, state}, song) {
   sequenceList.splice(currentSIndex, 0, song)
 
   if (fsIndex > -1) {
-    if (currentSIndex > fsIndex) {
-      sequenceList.splice(fsIndex, 1)
-    } else {
-      sequenceList.splice(fsIndex + 1, 1)
-    }
+    sequenceList.splice((currentSIndex > fsIndex) ? 1 : (fsIndex + 1), 1)
   }
 
   commit(types.SET_PLAYLIST, playlist)
@@ -111,9 +107,13 @@ export const deleteSong = function ({commit, state}, song) {
   commit(types.SET_SEQUENCE_LIST, sequenceList)
   commit(types.SET_CURRENT_INDEX, currentIndex)
 
-  if (!playlist.length) {
-    commit(types.SET_PLAYING_STATE, false)
-  } else {
-    commit(types.SET_PLAYING_STATE, true)
-  }
+  const playingState = playlist.length > 0
+  commit(types.SET_PLAYING_STATE, playingState)
+}
+
+export const deleteSongList = function ({commit}) {
+  commit(types.SET_PLAYLIST, [])
+  commit(types.SET_SEQUENCE_LIST, [])
+  commit(types.SET_CURRENT_INDEX, -1)
+  commit(types.SET_PLAYING_STATE, false)
 }

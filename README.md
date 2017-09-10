@@ -26,5 +26,8 @@ npm run build
 - sessionStorage 和 localStorage 操作包(good-storage)
 ## 更新日记
 
+## 待优化地方
+- 播放面板点击循环播放播放图标会丢失，课程(11-9)有做mixin合并
+
 
 

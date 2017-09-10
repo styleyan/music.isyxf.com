@@ -89,7 +89,6 @@
 </template>
 <script>
 import { prefixStyle } from '@utils/dom'
-import utils from '@utils'
 import { playMode } from '@utils/config'
 import Lyric from 'lyric-parser'
 import { mapGetters, mapMutations } from 'vuex'
@@ -98,12 +97,14 @@ import ProgressBar from '@components/progress-bar/Index.vue'
 import ProgressCircle from '@components/progress-circle/Index.vue'
 import Scroll from '@components/scroll/Scroll.vue'
 import Playlist from '@components/playlist/Index.vue'
+import {playerMixin} from '@mixin/player'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
   name: 'player',
+  mixins: [playerMixin],
   components: {
     ProgressBar,
     ProgressCircle,
@@ -136,17 +137,10 @@ export default {
     percent() {
       return this.currentTime / this.currentSong.duration
     },
-    iconMode() {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
-    },
     ...mapGetters([
       'fullScreen',
-      'playlist',
-      'currentSong',
       'playing',
       'currentIndex',
-      'mode',
-      'sequenceList',
     ]),
   },
   watch: {
@@ -281,25 +275,6 @@ export default {
       }
       this.songReady = false
     },
-    changeMode() {
-      const mode = (this.mode + 1) % 3
-      this.setPlayMode(mode)
-
-      let list = null
-      if (mode === playMode.random) {
-        list = utils.shuffle(this.sequenceList)
-      } else {
-        list = this.sequenceList
-      }
-      this.resetCurrentIndex(list)
-      this.setPlaylist(list)
-    },
-    resetCurrentIndex(list) {
-      let index = list.findIndex((item) => {
-        return item.id === this.currentSong.id
-      })
-      this.setCurrentIndex(index)
-    },
     ready() {
       this.songReady = true
     },
@@ -430,10 +405,6 @@ export default {
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayMode: 'SET_PLAY_MODE',
-      setPlaylist: 'SET_PLAYLIST',
     }),
   },
 }
