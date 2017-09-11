@@ -14,6 +14,11 @@
         <switches 
           :switches="switches" 
           v-model="currentIndex"></switches>
+          <scroll class="list-scroll" v-if="currentIndex===0" :data="playHistory">
+            <div class="play-history">
+              <song-list @select="selectSong" :songs="playHistory"></song-list>
+            </div>
+          </scroll>
       </div>
       <div class="search-result" v-show="query">
         <suggest 
@@ -31,6 +36,9 @@ import SearchBox from '@components/search-box/Index.vue'
 import Suggest from '@components/suggest/Index.vue'
 import searchMixin from '@mixin/search'
 import Switches from '@components/switches/Index.vue'
+import Scroll from '@components/scroll/Scroll.vue'
+import {mapGetters, mapActions} from 'vuex'
+import SongList from '@components/song-list/Index.vue'
 
 export default {
   name: 'add-song',
@@ -39,6 +47,8 @@ export default {
     SearchBox,
     Suggest,
     Switches,
+    Scroll,
+    SongList,
   },
   data() {
     return {
@@ -51,6 +61,11 @@ export default {
       currentIndex: 0,
     }
   },
+  computed: {
+    ...mapGetters([
+      'playHistory',
+    ]),
+  },
   methods: {
     show() {
       this.showFalg = true
@@ -61,6 +76,14 @@ export default {
     selectSuggest() {
       this.saveSearch()
     },
+    selectSong(song, index) {
+      if (index !== 0) {
+        this.insertSong(song)
+      }
+    },
+    ...mapActions([
+      'insertSong',
+    ]),
   },
 }
 </script>
@@ -127,5 +150,7 @@ export default {
       .text
         font-size: $font-size-medium
         color: $color-text
+  .play-history
+    padding 0 30px
 </style>
 

@@ -91,7 +91,7 @@
 import { prefixStyle } from '@utils/dom'
 import { playMode } from '@utils/config'
 import Lyric from 'lyric-parser'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import animations from 'create-keyframe-animation'
 import ProgressBar from '@components/progress-bar/Index.vue'
 import ProgressCircle from '@components/progress-circle/Index.vue'
@@ -277,6 +277,7 @@ export default {
     },
     ready() {
       this.songReady = true
+      this.savePlayHistory(this.currentSong)
     },
     /**
      * 防止网络问题导致不能播放问题
@@ -406,6 +407,9 @@ export default {
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
     }),
+    ...mapActions([
+      'savePlayHistory',
+    ]),
   },
 }
 </script>
