@@ -31,6 +31,14 @@ npm run build
 - 创建css3动画(create-keyframe-animation)
 - base64解码，编码库(js-base64)
 - 歌词解析时间(lyric-parse)
+<<<<<<< HEAD
+=======
+- sessionStorage 和 localStorage 操作包(good-storage)
+## 更新日记
+>>>>>>> 9487fafe245abfaee9838140bb68d937b8b8c091
+
+## 待优化地方
+- 播放面板点击循环播放播放图标会丢失，课程(11-9)有做mixin合并
 
 
 

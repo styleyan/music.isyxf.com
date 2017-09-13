@@ -5,6 +5,9 @@
  * 1. 通过mixin引入该模块
  * 2. 在模块中使用 modeValue 即可
  */
+
+import utils from '@utils'
+
 export default {
   props: {
     value: {
@@ -14,14 +17,17 @@ export default {
   data() {
     return {
       modeValue: this.value,
+      nodeValueDelay: 200,
     }
   },
   watch: {
-    modeValue(newVal) {
-      this.$emit('input', newVal)
-    },
     value(newVal) {
       this.modeValue = newVal
     },
+  },
+  created() {
+    this.$watch('modeValue', utils.debounce((newQuery) => {
+      this.$emit('input', newQuery)
+    }, this.nodeValueDelay))
   },
 }

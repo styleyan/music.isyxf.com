@@ -78,34 +78,38 @@
             <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlaylist">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <playlist ref="playlist"></playlist>
     <audio ref="audio" :src="currentSong.url" @canplay="ready" @timeupdate="UpDateTime" @ended="end" @error="error"></audio>
   </div>
 </template>
 <script>
-import { mapGetters, mapMutations } from 'vuex'
-import animations from 'create-keyframe-animation'
 import { prefixStyle } from '@utils/dom'
-import utils from '@utils'
-import ProgressBar from '@components/progress-bar/Index.vue'
-import ProgressCircle from '@components/progress-circle/Index.vue'
 import { playMode } from '@utils/config'
 import Lyric from 'lyric-parser'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
+import animations from 'create-keyframe-animation'
+import ProgressBar from '@components/progress-bar/Index.vue'
+import ProgressCircle from '@components/progress-circle/Index.vue'
 import Scroll from '@components/scroll/Scroll.vue'
+import Playlist from '@components/playlist/Index.vue'
+import {playerMixin} from '@mixin/player'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
   name: 'player',
+  mixins: [playerMixin],
   components: {
     ProgressBar,
     ProgressCircle,
     Scroll,
+    Playlist,
   },
   data() {
     return {
@@ -133,24 +137,23 @@ export default {
     percent() {
       return this.currentTime / this.currentSong.duration
     },
-    iconMode() {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
-    },
     ...mapGetters([
       'fullScreen',
-      'playlist',
-      'currentSong',
       'playing',
       'currentIndex',
-      'mode',
-      'sequenceList',
     ]),
   },
   watch: {
     currentSong(newSong, oldSong) {
+      if (!newSong.id) return
       if (newSong.id === oldSong.id) return
-      if (this.currentLyric) this.currentLyric.stop()
 
+      if (this.currentLyric) {
+        this.currentLyric.stop()
+        this.currentTime = 0
+        this.playingLyric = ''
+        this.currentLineNum = 0
+      }
       // 解决在微信中页面从后台切换到前台时，不会播放问题
       // 根本原因是切换到后台时，js代码不会执行而audio是会把当前歌曲播放完的
       setTimeout(() => {
@@ -272,27 +275,9 @@ export default {
       }
       this.songReady = false
     },
-    changeMode() {
-      const mode = (this.mode + 1) % 3
-      this.setPlayMode(mode)
-
-      let list = null
-      if (mode === playMode.random) {
-        list = utils.shuffle(this.sequenceList)
-      } else {
-        list = this.sequenceList
-      }
-      this.resetCurrentIndex(list)
-      this.setPlaylist(list)
-    },
-    resetCurrentIndex(list) {
-      let index = list.findIndex((item) => {
-        return item.id === this.currentSong.id
-      })
-      this.setCurrentIndex(index)
-    },
     ready() {
       this.songReady = true
+      this.savePlayHistory(this.currentSong)
     },
     /**
      * 防止网络问题导致不能播放问题
@@ -393,6 +378,9 @@ export default {
       this.$refs.middleL.style.opacity = opacity
       this.$refs.middleL.style[transitionDuration] = '450ms'
     },
+    showPlaylist() {
+      this.$refs.playlist.show()
+    },
     _pad(num, n = 2) {
       let len = num.toString().length
       while (len < n) {
@@ -418,11 +406,10 @@ export default {
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayMode: 'SET_PLAY_MODE',
-      setPlaylist: 'SET_PLAYLIST',
     }),
+    ...mapActions([
+      'savePlayHistory',
+    ]),
   },
 }
 </script>
