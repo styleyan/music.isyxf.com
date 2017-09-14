@@ -7,6 +7,7 @@ import RankDetail from '@views/rank/Detail'
 import Search from '@views/search/Index'
 import Singer from '@views/singer/Index'
 import SingerDetail from '@views/singer/Detail'
+import User from '@views/user/Index'
 
 Vue.use(Router)
 
@@ -55,6 +56,10 @@ export default new Router({
           component: SingerDetail,
         },
       ],
+    },
+    {
+      path: '/User',
+      component: User,
     },
   ],
 })
