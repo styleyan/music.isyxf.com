@@ -14,11 +14,21 @@
         <switches 
           :switches="switches" 
           v-model="currentIndex"></switches>
-          <scroll class="list-scroll" v-if="currentIndex===0" :data="playHistory">
-            <div class="play-history">
-              <song-list @select="selectSong" :songs="playHistory"></song-list>
-            </div>
-          </scroll>
+          <div class="list-wrapper">
+            <scroll ref="songList" class="list-scroll" v-if="currentIndex===0" :data="playHistory">
+              <div class="list-inner">
+                <song-list @select="selectSong" :songs="playHistory"></song-list>
+              </div>
+            </scroll>
+            <scroll ref="searchList" class="list-scroll" v-if="currentIndex===1" :data="searchHistory">
+              <div class="list-inner">
+                <search-list 
+                  @delete="deleteSearchHistory"
+                  @select="addQuery"
+                  :searches="searchHistory"></search-list>
+              </div>
+            </scroll>
+          </div>
       </div>
       <div class="search-result" v-show="query">
         <suggest 
@@ -39,6 +49,8 @@ import Switches from '@components/switches/Index.vue'
 import Scroll from '@components/scroll/Scroll.vue'
 import {mapGetters, mapActions} from 'vuex'
 import SongList from '@components/song-list/Index.vue'
+import Song from '@utils/song'
+import SearchList from '@components/search-list/Index.vue'
 
 export default {
   name: 'add-song',
@@ -49,6 +61,7 @@ export default {
     Switches,
     Scroll,
     SongList,
+    SearchList,
   },
   data() {
     return {
@@ -69,6 +82,13 @@ export default {
   methods: {
     show() {
       this.showFalg = true
+      setTimeout(() => {
+        if (this.currentIndex === 0) {
+          this.$refs.songList.refresh()
+        } else {
+          this.$refs.searchList.refresh()
+        }
+      }, 20)
     },
     hide() {
       this.showFalg = false
@@ -78,7 +98,7 @@ export default {
     },
     selectSong(song, index) {
       if (index !== 0) {
-        this.insertSong(song)
+        this.insertSong(new Song(song))
       }
     },
     ...mapActions([
@@ -150,7 +170,5 @@ export default {
       .text
         font-size: $font-size-medium
         color: $color-text
-  .play-history
-    padding 0 30px
 </style>
 
