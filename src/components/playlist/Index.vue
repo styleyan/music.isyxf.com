@@ -9,7 +9,7 @@
             <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
           </h1>
         </div>
-        <scroll ref="listContent" :data="sequenceList" class="list-content">
+        <scroll ref="listContent" :data="sequenceList" :refreshDelay="refreshDelay" class="list-content">
           <transition-group name="list" tag="ul">
             <li class="item" 
               ref="listItem"
@@ -62,6 +62,7 @@ export default {
   data() {
     return {
       showFlag: false,
+      refreshDelay: 100,
     }
   },
   computed: {

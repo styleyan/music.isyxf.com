@@ -4,6 +4,7 @@ export default {
   data() {
     return {
       query: '',
+      refreshDelay: 100,
     }
   },
   computed: {

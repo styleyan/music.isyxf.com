@@ -8,6 +8,7 @@
       v-show="!query" 
       v-model="query"
       @refresh="refreshSuggest"
+      :refreshDelay="refreshDelay"
       :list="hotKey">
       <div class="search-history" v-show="searchHistory.length">
         <h1 class="title">
