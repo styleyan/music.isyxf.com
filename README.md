@@ -32,6 +32,7 @@ npm run build
 - base64解码，编码库(js-base64)
 - 歌词解析时间(lyric-parse)
 - sessionStorage 和 localStorage 操作包(good-storage)
+- [vConsole 移动端调试工具](https://github.com/WechatFE/vConsole)
 ## 更新日记
 
 
