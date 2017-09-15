@@ -1,28 +1,58 @@
 <template>
   <transition name="slide">
     <div class="user-center">
-      <div class="back">
+      <div class="back" @click="back">
         <i class="icon-back"></i>
       </div>
       <div class="switches-wrapper">
         <switches v-model="currentIndex" :switches="switches"></switches>
       </div>
-      <div class="play-btn">
+      <div ref="playBtn" @click="random" class="play-btn">
         <i class="icon-play"></i>
         <span class="text">随机播放全部</span>
       </div>
-      <div class="list-wrapper"></div>
+      <div class="list-wrapper" ref="listWrapper">
+        <scroll class="list-scroll"
+          ref="favoriteList" 
+          v-if="currentIndex===0"
+          :data="favoriteList">
+          <div class="list-inner">
+            <song-list :songs="favoriteList" @select="selectSong"></song-list>
+          </div>
+        </scroll>
+        <scroll class="list-scroll"
+          ref="playList"
+          v-if="currentIndex===1"
+          :data="playHistory">
+          <div class="list-inner">
+            <song-list :songs="playHistory" @select="selectSong"></song-list>
+          </div>
+        </scroll>
+      </div>
+      <div class="no-result-wrapper" v-show="noResult">
+        <no-result :title="noResultDesc"></no-result>
+      </div>
     </div>
   </transition>
 </template>
 
 <script>
 import Switches from '@components/switches/Index.vue'
+import Scroll from '@components/scroll/Scroll.vue'
+import SongList from '@components/song-list/Index.vue'
+import NoResult from '@components/no-result/Index.vue'
+import {mapGetters, mapActions} from 'vuex'
+import Song from '@utils/song'
+import {playlistMixin} from '@mixin'
 
 export default {
   name: 'user-center',
+  mixins: [playlistMixin],
   components: {
     Switches,
+    Scroll,
+    SongList,
+    NoResult,
   },
   data() {
     return {
@@ -32,6 +62,46 @@ export default {
         {name: '最近听的'},
       ],
     }
+  },
+  computed: {
+    noResult() {
+      return !(this.currentIndex ? this.playHistory.length : this.favoriteList.length)
+    },
+    noResultDesc() {
+      return this.currentIndex ? '你还没有听过歌曲' : '暂无收藏歌曲'
+    },
+    ...mapGetters([
+      'favoriteList',
+      'playHistory',
+    ]),
+  },
+  methods: {
+    handlePlaylist(playlist) {
+      const bottom = playlist.length > 0 ? '60px' : ''
+      this.$refs.listWrapper.style.bottom = bottom
+      this.$refs.favoriteList && this.$refs.favoriteList.refresh()
+      this.$refs.playList && this.$refs.playList.refresh()
+    },
+    selectSong(song) {
+      this.insertSong(new Song(song))
+    },
+    back() {
+      this.$router.back()
+    },
+    random() {
+      let list = this.currentIndex === 0 ? this.favoriteList : this.playHistory
+      if (!list.length) return
+      list = list.map((song) => {
+        return new Song(song)
+      })
+      this.randomPlay({
+        list,
+      })
+    },
+    ...mapActions([
+      'insertSong',
+      'randomPlay',
+    ]),
   },
 }
 </script>
