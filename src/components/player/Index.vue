@@ -86,7 +86,7 @@
       </div>
     </transition>
     <playlist ref="playlist"></playlist>
-    <audio ref="audio" :src="currentSong.url" @canplay="ready" @timeupdate="UpDateTime" @ended="end" @error="error"></audio>
+    <audio ref="audio" :src="currentSong.url" @play="ready" @timeupdate="UpDateTime" @ended="end" @error="error"></audio>
   </div>
 </template>
 <script>
@@ -156,9 +156,11 @@ export default {
         this.playingLyric = ''
         this.currentLineNum = 0
       }
+
+      clearTimeout(this.timer)
       // 解决在微信中页面从后台切换到前台时，不会播放问题
       // 根本原因是切换到后台时，js代码不会执行而audio是会把当前歌曲播放完的
-      setTimeout(() => {
+      this.timer = setTimeout(() => {
         this.$nextTick(() => {
           this.$refs.audio.play()
           this.getLyric()
@@ -249,6 +251,7 @@ export default {
       // 考虑边界线问题，只有一首歌的情况
       if (this.playlist.length === 1) {
         this.loop()
+        return
       } else {
         let index = this.currentIndex + 1
         if (index === this.playlist.length) {
@@ -265,6 +268,7 @@ export default {
       if (!this.songReady) return
       if (this.playlist.length === 1) {
         this.loop()
+        return
       } else {
         let index = this.currentIndex - 1
         if (index === -1) {
@@ -309,6 +313,9 @@ export default {
     },
     getLyric() {
       this.currentSong.getLyric().then((lyric) => {
+        if (this.currentSong.lyric !== lyric) {
+          return
+        }
         this.currentLyric = new Lyric(lyric, this.handleLyric)
         if (this.playing) {
           this.currentLyric.play()
