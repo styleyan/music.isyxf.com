@@ -25,19 +25,17 @@ npm run build
 - chore：构建过程或辅助工具的变动
 
 
-## npm列表
-- 滚动插件(better-scroll)
-- 图片懒加载(vue-lazyload)
-- 创建css3动画(create-keyframe-animation)
-- base64解码，编码库(js-base64)
-- 歌词解析时间(lyric-parse)
-- sessionStorage 和 localStorage 操作包(good-storage)
+## 插件列表
+- [better-scroll 滚动插件](https://github.com/ustbhuangyi/better-scroll)
+- [vue-lazyload 图片懒加载](https://github.com/hilongjw/vue-lazyload)
+- [create-keyframe-animation 创建css3动画](https://github.com/HenrikJoreteg/create-keyframe-animation)
+- [base64 解码、编码库](https://github.com/dankogai/js-base64)
+- [lyric-parse 歌词解析时间](https://github.com/ustbhuangyi/lyric-parser)
+- [sessionStorage、localStorage存储](https://github.com/ustbhuangyi/storage)
 - [vConsole 移动端调试工具](https://github.com/WechatFE/vConsole)
+
 ## 更新日记
 
-
-## 待解决问题
-- 播放面板点击循环播放播放图标会丢失，课程(11-9)有做mixin合并
 
 
 
