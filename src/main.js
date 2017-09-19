@@ -7,8 +7,10 @@ import '@stylus/index.styl'
 import fastclick from 'fastclick'
 import VueLazyLoad from 'vue-lazyload'
 import store from './store'
+import axios from './api'
 
 fastclick.attach(document.body)
+Vue.use(axios)
 Vue.config.productionTip = false
 Vue.use(VueLazyLoad, {
   loading: require('@image/default.png'),
