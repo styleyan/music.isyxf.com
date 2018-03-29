@@ -9,7 +9,7 @@
       </div>
       <div ref="playBtn" @click="random" class="play-btn">
         <i class="icon-play"></i>
-        <span class="text">随机播放全部</span>
+        <span class="text">随机播放全部{{测试jenkins部署}</span>
       </div>
       <div class="list-wrapper" ref="listWrapper">
         <scroll class="list-scroll"
